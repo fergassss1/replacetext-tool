@@ -49,7 +49,7 @@
 
   <button onclick="replaceText()">Replace</button>
 <script>
-  // Escape regex special characters
+  // Escape regex special characters for safe replacement
   function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
@@ -61,14 +61,12 @@
 
     if (findValue === "") return;
 
-    // Check if the findValue contains $data placeholder
+    // If $data is in the find and replace fields
     if (findValue.includes("$data") && replaceValue.includes("$data")) {
-      // Convert findValue into regex, capturing $data dynamically
-      // Replace $data with a capture group (.*?)
-      const regexStr = escapeRegExp(findValue).replace("\\$data", "(.*?)");
+      // Replace $data with a capture group that matches ANY character (including newlines)
+      const regexStr = escapeRegExp(findValue).replace("\\$data", "([\\s\\S]*?)");
       const regex = new RegExp(regexStr, "g");
 
-      // Replace $data in replaceValue with the captured group
       textArea.value = textArea.value.replace(regex, (match, p1) => {
         return replaceValue.replace("$data", p1);
       });

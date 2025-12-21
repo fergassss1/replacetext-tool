@@ -7,16 +7,61 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
   :root {
+    /* primary colors (shared) */
     --primary-blue: #007bff;
     --primary-blue-hover: #0056b3;
+
+    /* light theme */
+    --bg: #f5f5f5;
+    --surface: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --border: #d1d5db;
+  }
+
+  /* dark theme overrides */
+  .dark {
+    --bg: #0b1020;
+    --surface: #0f1724;
+    --text: #e6eef8;
+    --muted: #93a4c3;
+    --border: #1f2937;
+  }
+
+  /* UI base */
+  html, body {
+    height: 100%;
   }
 
   body {
     font-family: 'Roboto', Arial, sans-serif;
-    background: #f5f5f5;
+    background: var(--bg);
+    color: var(--text);
     padding: 20px;
+    transition: background 160ms linear, color 160ms linear;
+    box-sizing: border-box;
   }
 
+  .top-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+  }
+
+  h2 {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  /* shared control styles */
   textarea, .editable, button {
     width: 100%;
     margin-top: 10px;
@@ -29,12 +74,219 @@
 
   .editable {
     min-height: 36px;
-    background: white;
-    border: 1px solid #ccc;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
     overflow-y: auto;
+    transition: background 160ms linear, border-color 160ms linear, color 160ms linear;
   }
 
-  button {
+  textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    transition: background 160ms linear, border-color 160ms linear, color 160ms linear;
+    resize: vertical;
+  }
+
+  label {
+    display: block;
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  button.primary {
+    cursor: pointer;
+    background: var(--primary-blue);
+    color: white;
+    border: none;
+    transition: background 0.3s;
+  }
+
+  button.primary:hover {
+    background: var(--primary-blue-hover);
+  }
+
+  /* small secondary buttons (theme toggle etc) */
+  .small-btn {
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 160ms linear, border-color 160ms linear, color 160ms linear;
+    font-size: 14px;
+  }
+
+  .small-btn:hover {
+    filter: brightness(0.95);
+  }
+
+  .blueData {
+    color: var(--primary-blue);
+    font-weight: normal;
+    font-family: 'Roboto Mono', monospace; /* Roboto family monospace */
+  }
+
+  /* layout niceties */
+  .actions {
+    display: grid;
+    gap: 8px;
+    grid-auto-flow: column;
+    align-items: center;
+    width: 220px;
+  }
+
+  .footer-note {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="top-row">
+    <h2>replacetext/tool</h2>
+    <div class="actions">
+      <button id="themeToggle" class="small-btn" aria-pressed="false" title="Toggle dark mode">Toggle Theme</button>
+      <button id="replaceBtn" class="primary">Replace</button>
+    </div>
+  </div>
+
+<label for="text">Text:</label>
+<textarea id="text" rows="6" placeholder="enter text here!"></textarea>
+
+<label>find:</label>
+<div id="find" class="editable" contenteditable="true" aria-label="Find pattern"></div>
+
+<label>replace with:</label>
+<div id="replace" class="editable" contenteditable="true" aria-label="Replace pattern"></div>
+
+<div style="display:none" id="sr">screenreader helper</div>
+
+<div class="footer-note">
+  ! use <span class="blueData">$data</span> inside find and replace with if you want to keep data on another type of brackets! (or get rid of it)
+</div>
+
+<script>
+  // Theme toggle + persistence
+  (function() {
+    const body = document.documentElement; // apply class to root so <html> can also inherit
+    const toggle = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('theme'); // 'dark' | 'light' | null
+
+    function applyTheme(mode) {
+      if (mode === 'dark') {
+        body.classList.add('dark');
+        toggle.textContent = 'dark';
+        toggle.setAttribute('aria-pressed', 'true');
+      } else {
+        body.classList.remove('dark');
+        toggle.textContent = 'light';
+        toggle.setAttribute('aria-pressed', 'false');
+      }
+    }
+
+    // initial: saved preference > prefers-color-scheme > light
+    if (saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      applyTheme('dark');
+    } else {
+      applyTheme('light');
+    }
+
+    toggle.addEventListener('click', () => {
+      const isDark = body.classList.contains('dark');
+      const next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      localStorage.setItem('theme', next);
+    });
+  })();
+
+  // Keep a reference to the Replace button for the old onclick behavior
+  document.getElementById('replaceBtn').addEventListener('click', replaceText);
+
+  // Function to color $data inside contenteditable
+  function colorData(div) {
+    // use textContent for consistent plain-text retrieval
+    let html = div.textContent;
+    // Replace all $data with a blue span (escape HTML)
+    html = html
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\$data/g, '<span class="blueData">$data</span>');
+    div.innerHTML = html;
+    placeCaretAtEnd(div);
+  }
+
+  function placeCaretAtEnd(el) {
+    el.focus();
+    if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
+      let range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      let sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  // Add input listeners to highlight $data while typing
+  document.getElementById("find").addEventListener("input", function() {
+    colorData(this);
+  });
+  document.getElementById("replace").addEventListener("input", function() {
+    colorData(this);
+  });
+
+  // Escape literal text for use inside a RegExp
+  function escapeForRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
+  }
+
+  // Replace function (fixed handling when using $data)
+  function replaceText() {
+    const textArea = document.getElementById("text");
+    // Use textContent to get the plain text (no spans)
+    let findValue = document.getElementById("find").textContent;
+    let replaceValue = document.getElementById("replace").textContent;
+
+    if (!findValue) return;
+
+    if (findValue.includes("$data") && replaceValue.includes("$data")) {
+      // Split on the placeholder and escape literal parts
+      const parts = findValue.split(/\$data/g);
+      // Escape each literal part for regex safety
+      const escapedParts = parts.map(escapeForRegExp);
+      // Join with a non-greedy capture group to match $data content
+      const regexStr = escapedParts.join('([\\s\\S]*?)');
+      const regex = new RegExp(regexStr, "g");
+
+      textArea.value = textArea.value.replace(regex, (...args) => {
+        // captured groups are args[1..n]; the last args are offset and input
+        const captured = args.slice(1, args.length - 2 + 1);
+        let result = replaceValue;
+        let captureIndex = 0;
+        result = result.replace(/\$data/g, () => captured[captureIndex++] ?? '');
+        return result;
+      });
+    } else {
+      // Simple literal replace: escape find string for regex
+      const escapedFind = escapeForRegExp(findValue);
+      const regex = new RegExp(escapedFind, "g");
+      textArea.value = textArea.value.replace(regex, replaceValue);
+    }
+  }
+
+  // Initialize $data highlighting for any prefilled content
+  document.querySelectorAll('.editable').forEach(div => colorData(div));
+</script>
+
+</body>
+</html>  button {
     cursor: pointer;
     background: var(--primary-blue);
     color: white;

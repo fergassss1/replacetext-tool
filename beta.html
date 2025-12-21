@@ -288,34 +288,35 @@
   document.querySelectorAll('.editable').forEach(div => colorData(div));
 </script>
 <script>
-const logo = document.getElementById('logo');
-const themeToggle = document.getElementById('theme-toggle');
+<script>
+const logo = document.getElementById("logo");
+const toggle = document.getElementById("themeToggle");
 
-// check saved setting
-let saved = localStorage.getItem('theme');
-let darkMode = saved
-    ? saved === 'dark'
-    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+let theme = localStorage.getItem("theme");
 
-function updateTheme() {
-    if (darkMode) {
-        document.documentElement.setAttribute('data-theme','dark');
-        logo.style.backgroundImage = "url('images/logo-dark.png')";
-    } else {
-        document.documentElement.setAttribute('data-theme','light');
-        logo.style.backgroundImage = "url('images/logo-light.png')";
-    }
+if (!theme) {
+    theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
 }
 
-themeToggle.addEventListener('click', () => {
-    darkMode = !darkMode;
-    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
-    updateTheme();
+function applyTheme() {
+    document.documentElement.dataset.theme = theme;
+    logo.style.backgroundImage =
+        theme === "dark"
+            ? "url('images/logo-dark.png')"
+            : "url('images/logo-light.png')";
+}
+
+toggle.addEventListener("click", () => {
+    theme = theme === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", theme);
+    applyTheme();
 });
 
-// initialize on page load
-updateTheme();
+applyTheme();
 </script>
+
   
 </body>
   </html>

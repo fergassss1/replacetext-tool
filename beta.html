@@ -116,6 +116,13 @@
   button.primary:hover {
     background: var(--primary-blue-hover);
   }
+  .logo {
+    width: 120px;
+    height: 50px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-image: url('logo-light.png');
 
   /* small secondary buttons (theme toggle etc) */
   .small-btn {
@@ -158,7 +165,7 @@
 <body>
 
   <div class="top-row">
-    <h2>beta/replacetext/tool</h2>
+    <<div id="logo" class="logo"></div>
     <div class="actions">
       <button id="themeToggle" class="small-btn" aria-pressed="false" title="Toggle dark mode">Toggle Theme</button>
       <button id="replaceBtn" class="primary">Replace</button>
@@ -280,6 +287,35 @@
   // Initialize $data highlighting for prefilled content
   document.querySelectorAll('.editable').forEach(div => colorData(div));
 </script>
+<script>
+const logo = document.getElementById('logo');
+const themeToggle = document.getElementById('theme-toggle');
 
+// check saved setting
+let saved = localStorage.getItem('theme');
+let darkMode = saved
+    ? saved === 'dark'
+    : window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+function updateTheme() {
+    if (darkMode) {
+        document.documentElement.setAttribute('data-theme','dark');
+        logo.style.backgroundImage = "url('logo-dark.png')";
+    } else {
+        document.documentElement.setAttribute('data-theme','light');
+        logo.style.backgroundImage = "url('logo-light.png')";
+    }
+}
+
+themeToggle.addEventListener('click', () => {
+    darkMode = !darkMode;
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+    updateTheme();
+});
+
+// initialize on page load
+updateTheme();
+</script>
+  
 </body>
   </html>

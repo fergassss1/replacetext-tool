@@ -49,25 +49,37 @@
 
   <button onclick="replaceText()">Replace</button>
 <script>
+  // Escape regex special characters
   function escapeRegExp(string) {
-    // Escape special regex characters so single characters or symbols work
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
   function replaceText() {
     const textArea = document.getElementById("text");
-    const findValue = document.getElementById("find").value;
-    const replaceValue = document.getElementById("replace").value;
+    let findValue = document.getElementById("find").value;
+    let replaceValue = document.getElementById("replace").value;
 
     if (findValue === "") return;
 
-    const escapedFind = escapeRegExp(findValue);
-    const regex = new RegExp(escapedFind, "g"); // global replace
-    textArea.value = textArea.value.replace(regex, replaceValue);
+    // Check if the findValue contains $data placeholder
+    if (findValue.includes("$data") && replaceValue.includes("$data")) {
+      // Convert findValue into regex, capturing $data dynamically
+      // Replace $data with a capture group (.*?)
+      const regexStr = escapeRegExp(findValue).replace("\\$data", "(.*?)");
+      const regex = new RegExp(regexStr, "g");
+
+      // Replace $data in replaceValue with the captured group
+      textArea.value = textArea.value.replace(regex, (match, p1) => {
+        return replaceValue.replace("$data", p1);
+      });
+    } else {
+      // Normal global replacement for exact matches
+      const escapedFind = escapeRegExp(findValue);
+      const regex = new RegExp(escapedFind, "g");
+      textArea.value = textArea.value.replace(regex, replaceValue);
+    }
   }
 </script>
-
-
 </body>
   </html>
   

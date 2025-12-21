@@ -48,19 +48,25 @@
   <input id="replace" type="text">
 
   <button onclick="replaceText()">Replace</button>
+<script>
+  function escapeRegExp(string) {
+    // Escape special regex characters so single characters or symbols work
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
 
-  <script>
-    function replaceText() {
-      const textArea = document.getElementById("text");
-      const findValue = document.getElementById("find").value;
-      const replaceValue = document.getElementById("replace").value;
+  function replaceText() {
+    const textArea = document.getElementById("text");
+    const findValue = document.getElementById("find").value;
+    const replaceValue = document.getElementById("replace").value;
 
-      if (findValue === "") return;
+    if (findValue === "") return;
 
-      const regex = new RegExp(findValue, "g");
-      textArea.value = textArea.value.replace(regex, replaceValue);
-    }
-  </script>
+    const escapedFind = escapeRegExp(findValue);
+    const regex = new RegExp(escapedFind, "g"); // global replace
+    textArea.value = textArea.value.replace(regex, replaceValue);
+  }
+</script>
+
 
 </body>
   </html>

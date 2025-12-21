@@ -45,7 +45,7 @@
 
   .top-row {
     display: flex;
-    gap: 12px;
+    gap: 10px 16px;
     align-items: center;
     justify-content: space-between;
   }
@@ -116,14 +116,14 @@
   button.primary:hover {
     background: var(--primary-blue-hover);
   }
-  .logo {
+.logo {
     width: 120px;
-    height: 50px;
+    height: 40px;
+    background-image: url("images/logo-light.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: left center;
-    background-image: url('logo-light.png');
-
+}
   /* small secondary buttons (theme toggle etc) */
   .small-btn {
     padding: 8px 12px;
@@ -300,10 +300,10 @@ let darkMode = saved
 function updateTheme() {
     if (darkMode) {
         document.documentElement.setAttribute('data-theme','dark');
-        logo.style.backgroundImage = "url('logo-dark.png')";
+        logo.style.backgroundImage = "url('images/logo-dark.png')";
     } else {
         document.documentElement.setAttribute('data-theme','light');
-        logo.style.backgroundImage = "url('logo-light.png')";
+        logo.style.backgroundImage = "url('images/logo-light.png')";
     }
 }
 

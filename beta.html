@@ -118,12 +118,18 @@
   }
 .logo {
     width: 200px;
-    height: 80px;
+    height: 100px;
     background-image: url("images/logo-light.png");
     background-size: contain;
     background-repeat: no-repeat;
     background-position: left;
 }
+
+/* when dark mode is active */
+.dark .logo {
+    background-image: url("images/logo-dark.png");
+}
+
   /* small secondary buttons (theme toggle etc) */
   .small-btn {
     padding: 8px 12px;
@@ -287,35 +293,7 @@
   // Initialize $data highlighting for prefilled content
   document.querySelectorAll('.editable').forEach(div => colorData(div));
 </script>
-<script>
-<script>
-const logo = document.getElementById("logo");
-const toggle = document.getElementById("themeToggle");
 
-let theme = localStorage.getItem("theme");
-
-if (!theme) {
-    theme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-}
-
-function applyTheme() {
-    document.documentElement.dataset.theme = theme;
-    logo.style.backgroundImage =
-        theme === "dark"
-            ? "url('images/logo-dark.png')"
-            : "url('images/logo-light.png')";
-}
-
-toggle.addEventListener("click", () => {
-    theme = theme === "dark" ? "light" : "dark";
-    localStorage.setItem("theme", theme);
-    applyTheme();
-});
-
-applyTheme();
-</script>
 
   
 </body>

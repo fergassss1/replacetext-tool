@@ -151,8 +151,8 @@
   <div class="top-row">
     <h2>replacetext/tool</h2>
     <div class="actions">
-      <button id="themeToggle" class="small-btn" aria-pressed="false" title="Toggle dark mode">Toggle Theme</button>
-      <button id="replaceBtn" class="primary">Replace</button>
+      <button id="themeToggle" class="small-btn" aria-pressed="false" title="Toggle dark mode">toggle theme</button>
+      <button id="replaceBtn" class="primary">replace</button>
     </div>
   </div>
 
@@ -181,11 +181,11 @@
     function applyTheme(mode) {
       if (mode === 'dark') {
         body.classList.add('dark');
-        toggle.textContent = 'dark';
+        toggle.textContent = 'dark mode';
         toggle.setAttribute('aria-pressed', 'true');
       } else {
         body.classList.remove('dark');
-        toggle.textContent = 'light';
+        toggle.textContent = 'light mode';
         toggle.setAttribute('aria-pressed', 'false');
       }
     }

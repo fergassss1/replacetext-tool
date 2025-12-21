@@ -3,9 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Text Replace Tool</title>
+  <!-- Load Roboto and Roboto Mono from Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Mono:wght@400&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --primary-blue: #007bff;
+    --primary-blue-hover: #0056b3;
+  }
+
   body {
-    font-family: Arial, sans-serif;
+    font-family: 'Roboto', Arial, sans-serif;
     background: #f5f5f5;
     padding: 20px;
   }
@@ -17,6 +24,7 @@
     font-size: 16px;
     box-sizing: border-box;
     border-radius: 12px;
+    font-family: inherit; /* ensure all controls use Roboto */
   }
 
   .editable {
@@ -28,19 +36,20 @@
 
   button {
     cursor: pointer;
-    background: #007bff;
+    background: var(--primary-blue);
     color: white;
     border: none;
     transition: background 0.3s;
   }
 
   button:hover {
-    background: #0056b3;
+    background: var(--primary-blue-hover);
   }
 
   .blueData {
-    color: blue;
-    font-weight: bold;
+    color: var(--primary-blue);
+    font-weight: normal;
+    font-family: 'Roboto Mono', monospace; /* Roboto family monospace */
   }
 </style>
 </head>
@@ -61,7 +70,8 @@
 <script>
   // Function to color $data inside contenteditable
   function colorData(div) {
-    let html = div.innerText;
+    // use textContent for consistent plain-text retrieval
+    let html = div.textContent;
     // Replace all $data with a blue span
     html = html.replace(/\$data/g, '<span class="blueData">$data</span>');
     div.innerHTML = html;
@@ -88,23 +98,42 @@
     colorData(this);
   });
 
-  // Replace function
+  // Escape literal text for use inside a RegExp
+  function escapeForRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  // Replace function (fixed handling when using $data)
   function replaceText() {
     const textArea = document.getElementById("text");
-    let findValue = document.getElementById("find").innerText;
-    let replaceValue = document.getElementById("replace").innerText;
+    // Use textContent to get the plain text (no spans)
+    let findValue = document.getElementById("find").textContent;
+    let replaceValue = document.getElementById("replace").textContent;
 
-    if (findValue === "") return;
+    if (!findValue) return;
 
     if (findValue.includes("$data") && replaceValue.includes("$data")) {
-      const regexStr = findValue.replace(/\$data/g, "([\\s\\S]*?)");
+      // Split on the placeholder and escape literal parts
+      const parts = findValue.split(/\$data/g);
+      // Escape each literal part for regex safety
+      const escapedParts = parts.map(escapeForRegExp);
+      // Join with a non-greedy capture group to match $data content
+      const regexStr = escapedParts.join('([\\s\\S]*?)');
       const regex = new RegExp(regexStr, "g");
 
-      textArea.value = textArea.value.replace(regex, (match, p1) => {
-        return replaceValue.replace(/\$data/g, p1);
+      textArea.value = textArea.value.replace(regex, (...args) => {
+        // last arg is the full match; captured groups are args[1..n]
+        // We'll replace each $data in replaceValue sequentially with the captured groups.
+        const captured = args.slice(1, args.length - 2 + 1); // safe extraction of capture groups
+        // If there's only one capture, captured will be [p1], otherwise multiple
+        let result = replaceValue;
+        let captureIndex = 0;
+        result = result.replace(/\$data/g, () => captured[captureIndex++] ?? '');
+        return result;
       });
     } else {
-      const escapedFind = findValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Simple literal replace: escape find string for regex
+      const escapedFind = escapeForRegExp(findValue);
       const regex = new RegExp(escapedFind, "g");
       textArea.value = textArea.value.replace(regex, replaceValue);
     }
@@ -112,5 +141,4 @@
 </script>
 
 </body>
-  </html>
-  
+</html>

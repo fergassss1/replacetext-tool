@@ -174,23 +174,22 @@
 <script>
   // Theme toggle + persistence
   (function() {
-    const body = document.documentElement; // apply class to root so <html> can also inherit
+    const html = document.documentElement;
     const toggle = document.getElementById('themeToggle');
-    const saved = localStorage.getItem('theme'); // 'dark' | 'light' | null
+    const saved = localStorage.getItem('theme');
 
     function applyTheme(mode) {
       if (mode === 'dark') {
-        body.classList.add('dark');
-        toggle.textContent = 'dark';
+        html.classList.add('dark');
+        toggle.textContent = 'dark mode';
         toggle.setAttribute('aria-pressed', 'true');
       } else {
-        body.classList.remove('dark');
-        toggle.textContent = 'light';
+        html.classList.remove('dark');
+        toggle.textContent = 'light mode';
         toggle.setAttribute('aria-pressed', 'false');
       }
     }
 
-    // initial: saved preference > prefers-color-scheme > light
     if (saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       applyTheme('dark');
     } else {
@@ -198,43 +197,37 @@
     }
 
     toggle.addEventListener('click', () => {
-      const isDark = body.classList.contains('dark');
+      const isDark = html.classList.contains('dark');
       const next = isDark ? 'light' : 'dark';
       applyTheme(next);
       localStorage.setItem('theme', next);
     });
   })();
 
-  // Keep a reference to the Replace button for the old onclick behavior
+  // Replace button
   document.getElementById('replaceBtn').addEventListener('click', replaceText);
 
-  // Function to color $data inside contenteditable
+  // Highlight $data inside contenteditable
   function colorData(div) {
-    // use textContent for consistent plain-text retrieval
-    let html = div.textContent;
-    // Replace all $data with a blue span (escape HTML)
-    html = html
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/\$data/g, '<span class="blueData">$data</span>');
-    div.innerHTML = html;
-    placeCaretAtEnd(div);
-  }
+    const sel = window.getSelection();
+    const range = sel.rangeCount ? sel.getRangeAt(0) : null;
+    const caretOffset = range ? range.startOffset : null;
 
-  function placeCaretAtEnd(el) {
-    el.focus();
-    if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
-      let range = document.createRange();
-      range.selectNodeContents(el);
-      range.collapse(false);
-      let sel = window.getSelection();
+    let text = div.textContent;
+    const html = text.replace(/\$data/g, '<span class="blueData">$data</span>');
+    div.innerHTML = html;
+
+    if (range && div.firstChild) {
+      const newRange = document.createRange();
+      const childNode = div.firstChild;
+      const offset = Math.min(caretOffset, childNode.length || 0);
+      newRange.setStart(childNode, offset);
+      newRange.collapse(true);
       sel.removeAllRanges();
-      sel.addRange(range);
+      sel.addRange(newRange);
     }
   }
 
-  // Add input listeners to highlight $data while typing
   document.getElementById("find").addEventListener("input", function() {
     colorData(this);
   });
@@ -242,46 +235,36 @@
     colorData(this);
   });
 
-  // Escape literal text for use inside a RegExp
   function escapeForRegExp(str) {
-    return str.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
-  // Replace function (fixed handling when using $data)
+  // Replace function supporting multiple $data, bracket replacement, and global matches
   function replaceText() {
     const textArea = document.getElementById("text");
-    // Use textContent to get the plain text (no spans)
     let findValue = document.getElementById("find").textContent;
     let replaceValue = document.getElementById("replace").textContent;
 
     if (!findValue) return;
 
     if (findValue.includes("$data") && replaceValue.includes("$data")) {
-      // Split on the placeholder and escape literal parts
-      const parts = findValue.split(/\$data/g);
-      // Escape each literal part for regex safety
-      const escapedParts = parts.map(escapeForRegExp);
-      // Join with a non-greedy capture group to match $data content
-      const regexStr = escapedParts.join('([\\s\\S]*?)');
-      const regex = new RegExp(regexStr, "g");
+      const parts = findValue.split(/\$data/g).map(part => escapeForRegExp(part));
+      const regex = new RegExp(parts.join("([\\s\\S]+?)"), "g");
 
       textArea.value = textArea.value.replace(regex, (...args) => {
-        // captured groups are args[1..n]; the last args are offset and input
         const captured = args.slice(1, args.length - 2 + 1);
         let result = replaceValue;
-        let captureIndex = 0;
-        result = result.replace(/\$data/g, () => captured[captureIndex++] ?? '');
+        let index = 0;
+        result = result.replace(/\$data/g, () => captured[index++] ?? '');
         return result;
       });
     } else {
-      // Simple literal replace: escape find string for regex
-      const escapedFind = escapeForRegExp(findValue);
-      const regex = new RegExp(escapedFind, "g");
+      const regex = new RegExp(escapeForRegExp(findValue), "g");
       textArea.value = textArea.value.replace(regex, replaceValue);
     }
   }
 
-  // Initialize $data highlighting for any prefilled content
+  // Initialize $data highlighting for prefilled content
   document.querySelectorAll('.editable').forEach(div => colorData(div));
 </script>
 

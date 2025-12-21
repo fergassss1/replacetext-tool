@@ -1,5 +1,6 @@
 # replacetext/tool
 filling text
+![window showing the website in light mode](images/windowlight.png) ![window showing the website in dark mode](images/windowdark.png)
 ## what is this?
 this is a simple HTML (that means it's a web) that the only purpose it has is to help you change characters on a text.
 usage is very simple :D

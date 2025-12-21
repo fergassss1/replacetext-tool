@@ -57,10 +57,28 @@
     width: 100%;
   }
 
-  h2 {
-    margin: 0;
-    font-weight: 700;
-  }
+  .top-row {
+    width: 100%;
+    min-height: 200px; /* adjust height as needed */
+    padding: 20px;      /* spacing inside the header */
+    display: flex;
+    flex-direction: column; /* stacks items vertically */
+    align-items: flex-start; /* align items to left */
+    justify-content: center; /* center vertically */
+    background-image: url('logo-light.png');
+    background-size: cover;
+    background-position: center;
+    color: #000; /* text color for light mode */
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    .top-row {
+        background-image: url('logo-dark.png');
+        color: #fff; /* text color for dark mode */
+    }
+}
+  
 
   /* shared control styles */
   textarea, .editable, button {
@@ -150,7 +168,6 @@
 <body>
 
   <div class="top-row">
-    <h2>beta/replacetext/tool</h2>
     <div class="actions">
       <button id="themeToggle" class="small-btn" aria-pressed="false" title="Toggle dark mode">Toggle Theme</button>
       <button id="replaceBtn" class="primary">Replace</button>

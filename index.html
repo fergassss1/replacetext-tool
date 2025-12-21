@@ -10,13 +10,20 @@
     padding: 20px;
   }
 
-  textarea, input, button {
+  textarea, .editable, button {
     width: 100%;
     margin-top: 10px;
     padding: 10px;
     font-size: 16px;
     box-sizing: border-box;
-    border-radius: 12px; /* Rounded corners for inputs and textarea */
+    border-radius: 12px;
+  }
+
+  .editable {
+    min-height: 36px;
+    background: white;
+    border: 1px solid #ccc;
+    overflow-y: auto;
   }
 
   button {
@@ -30,54 +37,80 @@
   button:hover {
     background: #0056b3;
   }
+
+  .blueData {
+    color: blue;
+    font-weight: bold;
+  }
 </style>
-
-
 </head>
 <body>
 
   <h2>Text Replace Tool</h2>
 
-  <label>Text:</label>
-  <textarea id="text" rows="6"></textarea>
+<label>Text:</label>
+<textarea id="text" rows="6"></textarea>
 
-  <label>Find:</label>
-  <input id="find" type="text">
+<label>Find:</label>
+<div id="find" class="editable" contenteditable="true"></div>
 
-  <label>Replace with:</label>
-  <input id="replace" type="text">
+<label>Replace with:</label>
+<div id="replace" class="editable" contenteditable="true"></div>
 
-  <button onclick="replaceText()">Replace</button>
+<button onclick="replaceText()">Replace</button>
 <script>
-  // Escape regex special characters for safe replacement
-  function escapeRegExp(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Function to color $data inside contenteditable
+  function colorData(div) {
+    let html = div.innerText;
+    // Replace all $data with a blue span
+    html = html.replace(/\$data/g, '<span class="blueData">$data</span>');
+    div.innerHTML = html;
+    placeCaretAtEnd(div);
   }
 
+  function placeCaretAtEnd(el) {
+    el.focus();
+    if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
+      let range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      let sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  // Add input listeners to highlight $data while typing
+  document.getElementById("find").addEventListener("input", function() {
+    colorData(this);
+  });
+  document.getElementById("replace").addEventListener("input", function() {
+    colorData(this);
+  });
+
+  // Replace function
   function replaceText() {
     const textArea = document.getElementById("text");
-    let findValue = document.getElementById("find").value;
-    let replaceValue = document.getElementById("replace").value;
+    let findValue = document.getElementById("find").innerText;
+    let replaceValue = document.getElementById("replace").innerText;
 
     if (findValue === "") return;
 
-    // If $data is in the find and replace fields
     if (findValue.includes("$data") && replaceValue.includes("$data")) {
-      // Replace $data with a capture group that matches ANY character (including newlines)
-      const regexStr = escapeRegExp(findValue).replace("\\$data", "([\\s\\S]*?)");
+      const regexStr = findValue.replace(/\$data/g, "([\\s\\S]*?)");
       const regex = new RegExp(regexStr, "g");
 
       textArea.value = textArea.value.replace(regex, (match, p1) => {
-        return replaceValue.replace("$data", p1);
+        return replaceValue.replace(/\$data/g, p1);
       });
     } else {
-      // Normal global replacement for exact matches
-      const escapedFind = escapeRegExp(findValue);
+      const escapedFind = findValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(escapedFind, "g");
       textArea.value = textArea.value.replace(regex, replaceValue);
     }
   }
 </script>
+
 </body>
   </html>
   

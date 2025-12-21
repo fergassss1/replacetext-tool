@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Text Replace Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    textarea, input, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Text Replace Tool</h2>
+
+  <label>Text:</label>
+  <textarea id="text" rows="6"></textarea>
+
+  <label>Find:</label>
+  <input id="find" type="text">
+
+  <label>Replace with:</label>
+  <input id="replace" type="text">
+
+  <button onclick="replaceText()">Replace</button>
+
+  <script>
+    function replaceText() {
+      const textArea = document.getElementById("text");
+      const findValue = document.getElementById("find").value;
+      const replaceValue = document.getElementById("replace").value;
+
+      if (findValue === "") return;
+
+      const regex = new RegExp(findValue, "g");
+      textArea.value = textArea.value.replace(regex, replaceValue);
+    }
+  </script>
+
+</body>
+  </html>
+  

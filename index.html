@@ -89,25 +89,6 @@
     resize: vertical;
   }
 
-  /* placeholder styling for textarea and contenteditable placeholders
-     Use var(--muted) so in .dark the placeholders match the footer color */
-  textarea::placeholder {
-    color: var(--muted);
-    opacity: 1;
-  }
-
-  /* contenteditable placeholder using data-placeholder (shows when element is empty) */
-  .editable:empty:before {
-    content: attr(data-placeholder);
-    color: var(--muted);
-    pointer-events: none;
-    font-family: inherit;
-    opacity: 1;
-    padding: 10px;
-    white-space: pre-wrap;
-    display: block;
-  }
-
   label {
     display: block;
     margin-top: 12px;
@@ -175,14 +156,14 @@
     </div>
   </div>
 
-<label for="text">text:</label>
-<textarea id="text" rows="6" placeholder="enter text here!
+<label for="text">Text:</label>
+<textarea id="text" rows="6" placeholder="enter text here!"></textarea>
 
 <label>find:</label>
-<div id="find" class="editable" contenteditable="true" aria-label="find in text" data-placeholder="type what you want to find on the text"></div>
+<div id="find" class="editable" contenteditable="true" aria-label="Find pattern"></div>
 
 <label>replace with:</label>
-<div id="replace" class="editable" contenteditable="true" aria-label="replace with" data-placeholder="what you want replaced on the found text"></div>
+<div id="replace" class="editable" contenteditable="true" aria-label="Replace pattern"></div>
 
 <div style="display:none" id="sr">screenreader helper</div>
 
@@ -305,4 +286,4 @@
 </script>
 
 </body>
-          </html>
+  </html>

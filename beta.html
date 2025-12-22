@@ -269,30 +269,40 @@
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
-  // Replace function supporting multiple $data, bracket replacement, and global matches
   function replaceText() {
-    const textArea = document.getElementById("text");
-    let findValue = document.getElementById("find").textContent;
-    let replaceValue = document.getElementById("replace").textContent;
+  const textArea = document.getElementById("text");
+  
+  // 1. SAVE the current cursor position
+  const selectionStart = textArea.selectionStart;
+  const selectionEnd = textArea.selectionEnd;
 
-    if (!findValue) return;
+  let findValue = document.getElementById("find").textContent;
+  let replaceValue = document.getElementById("replace").textContent;
 
-    if (findValue.includes("$data") && replaceValue.includes("$data")) {
-      const parts = findValue.split(/\$data/g).map(part => escapeForRegExp(part));
-      const regex = new RegExp(parts.join("([\\s\\S]+?)"), "g");
+  if (!findValue) return;
 
-      textArea.value = textArea.value.replace(regex, (...args) => {
-        const captured = args.slice(1, args.length - 2 + 1);
-        let result = replaceValue;
-        let index = 0;
-        result = result.replace(/\$data/g, () => captured[index++] ?? '');
-        return result;
-      });
-    } else {
-      const regex = new RegExp(escapeForRegExp(findValue), "g");
-      textArea.value = textArea.value.replace(regex, replaceValue);
-    }
+  // ... [Your existing logic for regex and replacement] ...
+  if (findValue.includes("$data") && replaceValue.includes("$data")) {
+    const parts = findValue.split(/\$data/g).map(part => escapeForRegExp(part));
+    const regex = new RegExp(parts.join("([\\s\\S]+?)"), "g");
+
+    textArea.value = textArea.value.replace(regex, (...args) => {
+      const captured = args.slice(1, args.length - 2 + 1);
+      let result = replaceValue;
+      let index = 0;
+      result = result.replace(/\$data/g, () => captured[index++] ?? '');
+      return result;
+    });
+  } else {
+    const regex = new RegExp(escapeForRegExp(findValue), "g");
+    textArea.value = textArea.value.replace(regex, replaceValue);
   }
+
+  // 2. RESTORE the cursor position
+  // We use the saved position so the browser doesn't reset to 0
+  textArea.setSelectionRange(selectionStart, selectionEnd);
+}
+
 
   // Initialize $data highlighting for prefilled content
   document.querySelectorAll('.editable').forEach(div => colorData(div));

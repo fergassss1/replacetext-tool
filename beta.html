@@ -297,8 +297,20 @@
   // Initialize $data highlighting for prefilled content
   document.querySelectorAll('.editable').forEach(div => colorData(div));
 </script>
+<script>
+  const myTextarea = document.getElementById('text');
 
+  myTextarea.addEventListener('input', function(e) {
+    // 1. Save where the cursor currently is
+    const position = this.selectionStart;
 
-  
+    // 2. Perform your logic (example: checking for $data)
+    if (this.value.includes('$data')) {
+      // If you are modifying the value, the cursor would normally jump to the start
+      // This is where you restore it
+      this.setSelectionRange(position, position);
+    }
+  });
+</script>
 </body>
   </html>

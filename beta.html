@@ -236,26 +236,54 @@
 
   // Replace button
   document.getElementById('replaceBtn').addEventListener('click', replaceText);
+function getCaretCharacterOffsetWithin(element) {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return 0;
 
+  const range = selection.getRangeAt(0);
+  const preRange = range.cloneRange();
+  preRange.selectNodeContents(element);
+  preRange.setEnd(range.endContainer, range.endOffset);
+
+  return preRange.toString().length;
+}
+
+function setCaretPosition(element, offset) {
+  const range = document.createRange();
+  const selection = window.getSelection();
+
+  let currentOffset = 0;
+  let nodeStack = [element];
+  let node;
+
+  while ((node = nodeStack.pop())) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const nextOffset = currentOffset + node.length;
+      if (offset <= nextOffset) {
+        range.setStart(node, offset - currentOffset);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        return;
+      }
+      currentOffset = nextOffset;
+    } else {
+      let i = node.childNodes.length;
+      while (i--) nodeStack.push(node.childNodes[i]);
+    }
+  }
   // Highlight $data inside contenteditable
   function colorData(div) {
-    const sel = window.getSelection();
-    const range = sel.rangeCount ? sel.getRangeAt(0) : null;
-    const caretOffset = range ? range.startOffset : null;
+  const caretOffset = getCaretCharacterOffsetWithin(div);
 
-    let text = div.textContent;
-    const html = text.replace(/\$data/g, '<span class="blueData">$data</span>');
-    div.innerHTML = html;
+  const text = div.textContent;
+  div.innerHTML = text.replace(
+    /\$data/g,
+    '<span class="blueData">$data</span>'
+  );
 
-    if (range && div.firstChild) {
-      const newRange = document.createRange();
-      const childNode = div.firstChild;
-      const offset = Math.min(caretOffset, childNode.length || 0);
-      newRange.setStart(childNode, offset);
-      newRange.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(newRange);
-    }
+  setCaretPosition(div, caretOffset);
+}
   }
 
   document.getElementById("find").addEventListener("input", function() {

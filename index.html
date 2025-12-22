@@ -210,11 +210,11 @@
     function applyTheme(mode) {
       if (mode === 'dark') {
         html.classList.add('dark');
-        toggle.textContent = 'dark mode';
+        toggle.textContent = 'toggle theme';
         toggle.setAttribute('aria-pressed', 'true');
       } else {
         html.classList.remove('dark');
-        toggle.textContent = 'light mode';
+        toggle.textContent = 'toggle theme';
         toggle.setAttribute('aria-pressed', 'false');
       }
     }

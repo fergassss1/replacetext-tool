@@ -1,7 +1,5 @@
 # replacetext/tool
-! current version: 1.1
-
-beta version: 1.1
+! beta version: 1.1
 ### screenshotties
 ver 1.0
 ![window showing the website in light mode](images/windowlight.png) ![window showing the website in dark mode](images/windowdark.png)
@@ -20,16 +18,14 @@ and to end, put what you want the found characters to convert to and hit replace
 
 and to end obviously enjoy :P
 ## version info
-### 1.1
-add new options/actions (remove numbers, lowercase, UPPERCASE)
-
-### 1.0
+(before v1.1
+### v1.0
 finally out of alpha !!!
 add $data function, theme toggle and use a logo instead of text 
 
 layout change
 
-### 0.1
+### v0.1
 start web development
 
 added an obvious feature: replace text

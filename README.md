@@ -1,6 +1,5 @@
 # replacetext/tool
-! current version: 1.1
-! beta version: 1.1
+! current version: 1.1 | beta version: 1.1
 ### screenshotties
 ver 1.0
 ![window showing the website in light mode](images/windowlight.png) ![window showing the website in dark mode](images/windowdark.png)

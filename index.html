@@ -169,6 +169,18 @@
     color: var(--muted);
     font-size: 13px;
   }
+  .transform-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.transform-actions .small-btn {
+  width: 100%;
+  padding: 8px 0; /* tighter horizontally */
+  text-align: center;
+    }
+      
 </style>
 </head>
 <body>
@@ -192,6 +204,13 @@
 
 <div style="display:none" id="sr">screenreader helper</div>
 
+<label>extra actions</label>
+<div class="transform-actions">
+  <button class="small-btn" onclick="removeNumbers()">remove numbers</button>
+  <button class="small-btn" onclick="toLowercase()">lowercase</button>
+  <button class="small-btn" onclick="toUppercase()">UPPERCASE</button>
+</div>
+  
 <div class="footer-note">
   ! use <span class="blueData">$data</span> inside find and replace with if you want to keep data on another type of brackets! (or get rid of it)
   <br><br>
@@ -292,7 +311,21 @@
       textArea.value = textArea.value.replace(regex, replaceValue);
     }
   }
+function removeNumbers() {
+  const textArea = document.getElementById("text");
+  textArea.value = textArea.value.replace(/\d+/g, '');
+}
 
+function toLowercase() {
+  const textArea = document.getElementById("text");
+  textArea.value = textArea.value.toLowerCase();
+}
+
+function toUppercase() {
+  const textArea = document.getElementById("text");
+  textArea.value = textArea.value.toUpperCase();
+  }
+  
   // Initialize $data highlighting for prefilled content
   document.querySelectorAll('.editable').forEach(div => colorData(div));
 </script>

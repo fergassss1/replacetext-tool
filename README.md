@@ -24,8 +24,10 @@ add new options/actions (remove numbers, lowercase, UPPERCASE)
 ### 1.0
 finally out of alpha !!!
 add $data function, theme toggle and use a logo instead of text 
+
 layout change
 
 ### 0.1
 start web development
+
 added an obvious feature: replace text
